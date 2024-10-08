@@ -41,3 +41,65 @@ namespace UnitTesting.amadesya
     }
 }
 
+
+using Moq;
+using TestingLib.Shop;
+
+namespace UnitTesting.XUnit
+{
+    public class ShopTests
+    {
+        private readonly Mock<ICustomerRepository> mockCustomerRepository;
+        private readonly Mock<IOrderRepository> mockOrderRepository;
+        private readonly Mock<INotificationService> mockNotificationService;
+
+        public ShopTests()
+        {
+            mockCustomerRepository = new Mock<ICustomerRepository>();
+            mockOrderRepository = new Mock<IOrderRepository>();
+            mockNotificationService = new Mock<INotificationService>();
+        }
+
+        [Fact]
+        public void CreateOrder_WhenOrderIsCreated()
+        {
+            var customer = new Customer { Id = 1, Name = "Test User", Email = "example@gmail.com" };
+            Order order = new Order { Id = 1, Date = new DateTime(2023, 09, 11), Customer = customer, Amount = 1 };
+
+            var service = new ShopService(mockCustomerRepository.Object, mockOrderRepository.Object, mockNotificationService.Object);
+
+            service.CreateOrder(order);
+
+            mockOrderRepository.Verify(repo => repo.AddOrder(order), Times.Once);
+            mockNotificationService.Verify(s => s.SendNotification(customer.Email, $"Order {order.Id} created for customer {order.Customer.Name} total price {order.Amount}"), Times.Once);
+        }
+
+        [Fact]
+        public void CreateOrder_ShouldReturnFalse_WhenOrderIsNotCreated()
+        {
+            var customer = new Customer { Id = 1, Name = "Test User", Email = "example@gmail.com" };
+            Order order = new Order { Id = 1, Date = new DateTime(2023, 09, 11), Customer = customer, Amount = 1 };
+
+            var service = new ShopService(mockCustomerRepository.Object, mockOrderRepository.Object, mockNotificationService.Object);
+
+            service.CreateOrder(order);
+
+            Assert.Throws<ArgumentException>(() => service.CreateOrder(order));
+        }
+
+        [Fact]
+        public void GetCustomerInfo_ShouldReturnCustomerInfo()
+        {
+            var customer = new Customer { Id = 1, Name = "Test User", Email = "example@gmail.com" };
+            Order orders = new Order { Id = 1, Date = new DateTime(2023, 09, 11), Customer = customer, Amount = 1 };
+
+            var service = new ShopService(mockCustomerRepository.Object, mockOrderRepository.Object, mockNotificationService.Object);
+            service.CreateOrder(orders);
+
+            service.GetCustomerInfo(1);
+
+            mockCustomerRepository.Verify(repo => repo.GetCustomerById(1), Times.Once);
+        }
+    }
+}
+
