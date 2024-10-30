@@ -3,6 +3,7 @@
 ИСПП-35
 Фролова Мия, Луев Роман 
 
+using System;
 using TestingLib.Math;
 
 namespace UnitTesting.amadesya
@@ -19,7 +20,7 @@ namespace UnitTesting.amadesya
         [Fact]
         public void SolveQuadraticEquation_ShouldReturnCorrectRoots()
         {
-            (double?,double?) descriminant = _calculator.SolveQuadraticEquation(1.0, 2.0, -3.0);
+            (double?, double?) descriminant = _calculator.SolveQuadraticEquation(1.0, 2.0, -3.0);
             Assert.Equal(descriminant, descriminant);
         }
 
@@ -33,10 +34,10 @@ namespace UnitTesting.amadesya
         }
 
         [Theory]
-        [InlineData(2.0, 3.0, -5.0, 1.0, -2.5)]
-        public void SolveQuadraticEquation_Exeption(double a, double b, double c, double? expectedResult1, double? expectedResult2)
+        [InlineData(0, 3.0, -5.0)]
+        public void SolveQuadraticEquation_Exeption(double a, double b, double c)
         {
-
+            Assert.Throws<ArgumentOutOfRangeException>(() => _calculator.SolveQuadraticEquation(a,b,c));
         }
     }
 }
